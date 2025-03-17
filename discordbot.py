@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import os
 import json
+from dotenv import load_dotenv
 
 # Set up the bot
 intents = discord.Intents.default()
@@ -206,5 +207,10 @@ async def roster(ctx, type_of_data: str = None):
     await ctx.send(output)
 
 # Run the bot
-TOKEN = "MTMyOTI0MDY4NDg1NDc3MTcxMg.GPyy-q.ziz_7fxOaEfhwKQUNib61Cb-HxPFEKdK68tKSU"
+load_dotenv()  # Load variables from .env file
+
+TOKEN = os.getenv("DISCORD_TOKEN")
+
+print("Token Loaded Successfully!" if TOKEN else "Failed to Load Token.")
+
 bot.run(TOKEN)
