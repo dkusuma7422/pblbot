@@ -3,6 +3,20 @@ from discord.ext import commands
 import os
 import json
 from dotenv import load_dotenv
+from flask import Flask
+import threading
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+def run_flask():
+    app.run(host="0.0.0.0", port=8080)
+
+# Run Flask in a separate thread
+threading.Thread(target=run_flask, daemon=True).start()
 
 # Set up the bot
 intents = discord.Intents.default()
