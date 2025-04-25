@@ -5,6 +5,7 @@ import json
 from dotenv import load_dotenv
 from flask import Flask
 import threading
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
@@ -17,6 +18,23 @@ def run_flask():
 
 # Run Flask in a separate thread
 threading.Thread(target=run_flask, daemon=True).start()
+
+# Get MongoDB URI from the environment variable
+mongo_uri = os.getenv("MONGODB_URI")
+
+# Connect to MongoDB
+client = MongoClient(mongo_uri)
+db = client.get_database()  # Gets the database set in the connection string
+
+# Example collection
+collection = db["bot_data"]
+
+# Example of storing some data
+collection.insert_one({"user_id": 12345, "status": "active"})
+
+# Example of retrieving data
+user_data = collection.find_one({"user_id": 12345})
+print(user_data)
 
 y=0
 
@@ -102,8 +120,7 @@ async def add(ctx, type_of_data: str = None, *, info: str = None):
     # Send the confirmation message using the mapped template
     await ctx.send(f"{data_map['tag']} Roster Updated")
 
-    @bot.command()
-
+@bot.command()
 async def draft(ctx, type_of_data: str = None, *, info: str = None):
     # Get the data type mapping from the file_name_map
     data_map = file_name_map.get(type_of_data.lower())
@@ -134,8 +151,8 @@ async def draft(ctx, type_of_data: str = None, *, info: str = None):
 
     # Send the confirmation message using the mapped template
     await ctx.send(f"With the {y%8}th/rd pick in the {y-y%8}th/rd round of the Season 4 PBL draft {data_map['tag']} has selected {info}.")
-
-    @bot.command()
+    
+    return
 
 @bot.command()
 async def drop(ctx, type_of_data: str = None, *, info: str = None):
