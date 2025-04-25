@@ -18,6 +18,8 @@ def run_flask():
 # Run Flask in a separate thread
 threading.Thread(target=run_flask, daemon=True).start()
 
+y=0
+
 # Set up the bot
 intents = discord.Intents.default()
 intents.messages = True
@@ -99,6 +101,41 @@ async def add(ctx, type_of_data: str = None, *, info: str = None):
 
     # Send the confirmation message using the mapped template
     await ctx.send(f"{data_map['tag']} Roster Updated")
+
+    @bot.command()
+
+async def draft(ctx, type_of_data: str = None, *, info: str = None):
+    # Get the data type mapping from the file_name_map
+    data_map = file_name_map.get(type_of_data.lower())
+
+    if data_map is None or info is None:
+        await ctx.send("Missing team abbreviation. Can't process request.")
+        return
+
+    # Load the existing data from the specified file
+    data = load_data(data_map["file"])
+
+    if any(entry["info"] == info for entry in data):
+        await ctx.send(f"{data_map['tag']} already has this mon.")
+        return
+    
+    # Enforcing the 9 mon maximum
+    elif len(data) >= 9:
+        await ctx.send(f"{data_map['tag']} already has 9 mons. Please drop a mon before adding a new one.")
+        return
+    
+    clear_file(data_map["file"])
+
+    # Append the new info to the list
+    data.append({"kills": 0, "info": info})
+    
+    # Save the updated data back to the file
+    save_data(data, data_map["file"])
+
+    # Send the confirmation message using the mapped template
+    await ctx.send(f"With the {y%8}th/rd pick in the {y-y%8}th/rd round of the Season 4 PBL draft {data_map['tag']} has selected {info}.")
+
+    @bot.command()
 
 @bot.command()
 async def drop(ctx, type_of_data: str = None, *, info: str = None):
